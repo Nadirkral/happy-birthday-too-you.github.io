@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Günəşə Özəl</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #00ced1, #00ffff);
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      overflow: hidden;
+    }
+    h1 {
+      color: #00bfff;
+      text-shadow: 2px 2px white;
+      font-size: 2.5em;
+    }
+    .message {
+      background: #add8e6;
+      border: 2px dashed #0000ff;
+      padding: 15px 25px;
+      border-radius: 12px;
+      font-size: 1.1em;
+      max-width: 600px;
+      margin-top: 10px;
+      color: #1e90ef;
+    }
+    .cake {
+      position: relative;
+      width: 200px;
+      height: 150px;
+      background: CornflowerBlue ;
+      border-radius: 10px;
+      box-shadow: 0 10px 0 #4169e1;
+      margin-top: 20px;
+    }
+    .candle {
+      position: absolute;
+      width: 10px;
+      height: 40px;
+      background: #7fffd4;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .flame {
+      width: 12px;
+      height: 18px;
+      background: MediumTurquoise ;
+      border-radius: 50% 50% 50% 0;
+      position: absolute;
+      top: -18px;
+      left: -1px;
+      animation: flicker 0.2s infinite;
+    }
+    .smoke {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: Aquamarine(200,200,200,0.5);
+      border-radius: 50%;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: smoke-rise 2s ease-out forwards;
+    }
+    @keyframes flicker {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(3deg); }
+      100% { transform: scale(1) rotate(-3deg); }
+    }
+    @keyframes smoke-rise {
+      0% { opacity: 0.7; transform: translateX(-50%) translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-100px) scale(2); }
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #0000ff
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 4px #c2185b;
+    }
+    button:active {
+      box-shadow: none;
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+<body>
+  <h1>Ad Günün Mübarək, GÜNƏŞ!</h1>
+  <div class="message">
+    AD GÜNÜN MÜNASİBƏTİ İLƏ SƏNİ, ÜRƏKDƏN TƏBRİK EDİRƏM, GÜNƏŞ!<br>
+    Bu gözəl gün sənə sevinc, xoşbəxtlik və sonsuz uğurlar gətirsin.<br>
+    Allah sənə uzun ömür, möhkəm can sağlığı və daima güclü ruh versin.<br>
+    Gələcək həyatın işıqlı və firavan olsun, arzuların həyata keçsin.<br>
+    Üzündən gülüş heç vaxt əskik olmasın, sevgi və xoşbəxtlik daim səninlə olsun!
+  </div>
+  <div class="cake">
+    <div class="candle">
+      <div class="flame" id="flame"></div>
+    </div>
+  </div>
+  <p style="margin-top:10px; color:#d6336c;">Şamı üfürmək üçün mikrofona üfür!</p>
+
+  <!-- Lokal musiqi faylı -->
+  <audio id="bg-music" autoplay loop>
+    <source src="music.mp3" type="audio/mp3">
+    Sənin brauzerin musiqi dəstəkləmir.
+  </audio>
+
+  <script>
+    let audioContext;
+    let analyser;
+    let microphone;
+    let dataArray;
+    let flame = document.getElementById('flame');
+    let candle = document.querySelector('.candle');
+
+    async function startMic() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+        microphone.connect(analyser);
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        detectBlow();
+      } catch (err) {
+        alert('Mikrofona icazə verilmədi. Şamı üfürmək üçün mikrofona icazə verməlisən.');
+      }
+    }
+
+    function detectBlow() {
+      requestAnimationFrame(detectBlow);
+      analyser.getByteFrequencyData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i++) {
+        sum += dataArray[i];
+      }
+      let volume = sum / dataArray.length;
+      if (volume > 40 && flame.style.display !== 'none') {
+        flame.style.display = 'none';
+        let smoke = document.createElement('div');
+        smoke.classList.add('smoke');
+        candle.appendChild(smoke);
+        alert('GÜNƏŞ, şamı üfürdün! Ad günün mübarək olsun!');
+      }
+    }
+
+    startMic();
+  </script>
+</body>
+</html>
